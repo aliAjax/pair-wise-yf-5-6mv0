@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>潜水气瓶充装调度台</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">🤿</span>
+      <div>
+        <h1>潜水气瓶充装调度台</h1>
+        <p class="sub">周末出海 · 四名持证潜水员 / 八只气瓶</p>
+      </div>
+    </div>
+    <div class="clock">
+      <div><span id="clockNow">--</span><em id="simTag" class="sim-tag hidden">模拟时间</em></div>
+      <div class="dep">出发 <strong id="clockDeparture">--</strong> <span id="cutoffNote"></span></div>
+      <div class="countdown" id="countdown"></div>
+      <div class="clock-actions">
+        <button type="button" class="btn ghost small" data-action="open-settings">时间与出发设置</button>
+        <button type="button" class="btn ghost small danger" data-action="reset-all">恢复预置数据</button>
+      </div>
+    </div>
+  </header>
+
+  <section id="alerts" class="alerts"></section>
+
+  <section class="stats" id="stats"></section>
+
+  <main class="grid">
+    <!-- 左：气瓶 -->
+    <section class="panel" id="cylPanel">
+      <div class="panel-head">
+        <h2>气瓶台账</h2>
+        <div class="filters">
+          <label>气体
+            <select id="filterGas" aria-label="按气体筛选">
+              <option value="ALL">全部</option>
+            </select>
+          </label>
+          <label>工作压力
+            <input type="number" id="filterMin" min="0" placeholder="最低" class="pressure-input" />
+            <span class="sep">–</span>
+            <input type="number" id="filterMax" min="0" placeholder="最高" class="pressure-input" /> bar
+          </label>
+          <button type="button" class="btn small" id="filterClear">清除筛选</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table cylinders">
+          <thead>
+            <tr>
+              <th>瓶号</th><th>气体</th><th>工作压力</th>
+              <th>上次水压检测</th><th>到期</th><th>状态</th><th>持有人</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="cylTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 右：潜水员、申领、队列 -->
+    <div class="side">
+      <section class="panel">
+        <div class="panel-head"><h2>潜水员与证照</h2></div>
+        <ul class="divers" id="diverList"></ul>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>新建申领</h2></div>
+        <form id="requestForm" class="request-form">
+          <label>潜水员
+            <select id="formDiver"></select>
+          </label>
+          <label>申领类型
+            <select id="formType">
+              <option value="RESERVE">出海保留（次日出海，优先）</option>
+              <option value="BORROW">普通借用（排在保留之后）</option>
+            </select>
+          </label>
+          <label>气体
+            <select id="formGas"></select>
+          </label>
+          <label>指定气瓶（可选）
+            <select id="formCylinder">
+              <option value="">自动分配最合适的瓶</option>
+            </select>
+          </label>
+          <p class="hint" id="formHint"></p>
+          <button type="submit" class="btn primary">提交申领</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>排队中 <span class="badge" id="queueCount">0</span></h2></div>
+        <ul class="queue" id="queueList"></ul>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>操作日志</h2></div>
+        <ol class="log" id="logList"></ol>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    数据保存在本浏览器 localStorage，不上传服务器；水压检测满 5 年自动退回检修，保留瓶出发前 2 小时未领取自动释放。
+  </footer>
+
+  <!-- 通用弹窗：时间设置 / 检修完成 -->
+  <div class="modal-mask hidden" id="modalMask">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="modalTitle"></h3>
+      <div id="modalBody"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="modalCancel">取消</button>
+        <button type="button" class="btn primary" id="modalOk">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast" role="status"></div>
+
+  <script src="js/rules.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
