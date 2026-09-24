@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>潜水店充装调度台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo">🤿</span>充装调度台</div>
+    <div class="trip-info">
+      航次：<b id="tripName"></b>　出发：<b id="departAt" class="mono"></b>
+      <div class="phase" id="phase"></div>
+    </div>
+    <div class="clock-box">
+      <span>模拟当前时间</span>
+      <strong id="nowClock" class="mono"></strong>
+      <input type="datetime-local" id="clockInput">
+      <div class="toolbar" style="margin:0">
+        <button class="btn btn-sm" data-time="2026-09-24T10:00">周四 10:00</button>
+        <button class="btn btn-sm" data-time="2026-09-25T09:00">周五 09:00（保留时段）</button>
+        <button class="btn btn-sm" data-time="2026-09-26T06:30">周六 06:30（T-2h 释放）</button>
+        <button class="btn btn-sm" data-time="2026-09-26T09:00">周六 09:00（已出发）</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <!-- 气瓶列表：按气体、压力筛选 -->
+    <section class="panel col-wide">
+      <h2>气瓶（8 只）</h2>
+      <p class="sub" id="tankSummary"></p>
+      <div class="filter-bar">
+        <label class="small muted">气体
+          <select id="gasFilter"></select>
+        </label>
+        <label class="small muted">工作压力
+          <select id="wpFilter"></select>
+        </label>
+        <button class="btn btn-sm" id="rerunBtn">重新执行调度判定</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>编号</th>
+            <th>气体类型</th>
+            <th>工作压力</th>
+            <th>上次水压检测</th>
+            <th>状态</th>
+          </tr>
+        </thead>
+        <tbody id="tankBody"></tbody>
+      </table>
+    </section>
+
+    <!-- 潜水员 -->
+    <section class="panel">
+      <h2>持证潜水员（4 名）</h2>
+      <p class="sub">仅可申请证内列出的气体类型</p>
+      <div class="diver-grid" id="diverList"></div>
+    </section>
+
+    <!-- 新建申请 -->
+    <section class="panel">
+      <h2>新建用气申请</h2>
+      <p class="sub">出海前一天的瓶先保留；普通借用排在其后</p>
+      <form id="requestForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="fDiver">潜水员</label>
+            <select id="fDiver">
+              <option value="d1">陈海（OW）</option>
+              <option value="d2">林溪（AOW + 高氧）</option>
+              <option value="d3">周潜（高氧进阶）</option>
+              <option value="d4">高岩（三混 / 纯氧减压）</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fGas">气体（限证内）</label>
+            <select id="fGas"></select>
+          </div>
+          <div class="field">
+            <label for="fMinWp">最低工作压力 (bar)</label>
+            <input type="number" id="fMinWp" min="1" placeholder="如 232" required>
+          </div>
+          <div class="field">
+            <label for="fType">申请类型</label>
+            <select id="fType">
+              <option value="borrow">普通借用</option>
+              <option value="hold">出海前一天保留</option>
+            </select>
+          </div>
+          <div class="field">
+            <button type="submit" class="btn btn-primary">提交并自动调度</button>
+          </div>
+        </div>
+        <div class="hint" id="holdHint" style="display:none"></div>
+        <div class="form-error" id="formError" style="display:none"></div>
+      </form>
+    </section>
+
+    <!-- 申请队列 -->
+    <section class="panel col-wide">
+      <h2>调度队列</h2>
+      <p class="sub">保留瓶优先，普通借用按提交时间先到先得；保留瓶出发前 2 小时未领自动释放</p>
+      <div id="requestList"></div>
+      <div class="history-title">已结束的申请</div>
+      <div id="requestHistory"></div>
+    </section>
+
+    <!-- 日志与数据 -->
+    <section class="panel col-wide">
+      <h2>调度日志</h2>
+      <p class="sub">判定结果记录；数据保存在本浏览器 localStorage（key: dive-dispatch-v1），不上传服务器</p>
+      <ul id="logList"></ul>
+      <div class="toolbar">
+        <button class="btn" id="resetBtn">恢复预置数据（清空本地改动）</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="rules.js"></script>
+  <script src="storage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
